@@ -1,3 +1,3 @@
 # nuage
 
-something meaningful
+Requires Rust Nightly.
