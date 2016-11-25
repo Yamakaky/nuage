@@ -1,0 +1,113 @@
+swagger: '2.0'
+info:
+  title: Nuage API
+  description: File uploading system
+  version: "1.0.0"
+host: nuage.chocolytech.info
+schemes:
+  - https
+produces:
+  - text/html
+  - application/json
+paths:
+  /files/{file}:
+    get:
+      summary: User files
+      parameters:
+        - name: file
+          in: path
+          description: Name of the file.
+          required: true
+          type: string
+      responses:
+        200:
+          description: Content of the file/directory
+        401:
+          description: User logged out
+        404:
+          description: Inexistent
+    put:
+      summary: Uploads a file
+      parameters:
+        - name: file
+          in: path
+          description: Name of the file.
+          required: true
+          type: string
+      responses:
+        201:
+          description: File created/updated
+        401:
+          description: User logged out
+    delete:
+      summary: Delete a file/directory
+      parameters:
+        - name: file
+          in: path
+          description: Name of the file.
+          required: true
+          type: string
+      responses:
+        200:
+          description: File deleted
+        401:
+          description: User logged out
+        404:
+          description: Inexistent
+  /share:
+    get:
+      summary: List the active shares of the user
+      responses:
+        200:
+          description: Active shares
+        401:
+          description: User logged out
+    post:
+      summary: Share a new file
+      parameters:
+        - name: path
+          in: query
+          description: The path of the file to share
+          required: true
+          type: string
+        - name: expire
+          in: query
+          description: Expiration date of the share
+          type: string
+          format: date-time
+        - name: id
+          in: query
+          description: Id to use instead of a generated one
+          type: string
+      responses:
+        201:
+          description: Share created
+          schema:
+            $ref: '#/definitions/Share'
+        404:
+          description: Path doesn't exist
+  /share/{id}:
+    get:
+      summary: pote
+      parameters:
+        - name: id
+          in: path
+          description: Id of the shared file
+          required: true
+          type: string
+      responses:
+        200:
+          description: The share exists
+        404:
+          description: The share doesn't exist
+
+definitions:
+  Share:
+    type: object
+    properties:
+      share_id:
+        type: string
+        description: Obscure id of the share
+      path:
+        type: string
+        description: Path of the shared file
