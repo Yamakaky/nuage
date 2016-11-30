@@ -1,0 +1,360 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "description": "File uploading system",
+    "version": "1.0.0",
+    "title": "Nuage API",
+    "contact": {}
+  },
+  "host": "nuage.chocolytech.info",
+  "schemes": [
+    "https"
+  ],
+  "paths": {
+    "/files/download/{file_uuid}": {
+      "get": {
+        "summary": "Downloads the file",
+        "parameters": [
+          {
+            "name": "file_uuid",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Status 200"
+          },
+          "400": {
+            "description": "Status 400"
+          }
+        }
+      }
+    },
+    "/files/id/{file_uuid}": {
+      "get": {
+        "summary": "Get info about the file",
+        "description": "",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "file_uuid",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Status 200",
+            "schema": {
+              "$ref": "#/definitions/FileMetadata"
+            }
+          }
+        }
+      },
+      "post": {
+        "summary": "NOT ALLOWED",
+        "parameters": [
+          {
+            "name": "file_uuid",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "405": {
+            "description": "Status 405"
+          }
+        }
+      },
+      "put": {
+        "summary": "Move this file",
+        "description": "Change properties about this file, either:\n- its path\n- its group (owner must be part of the group)\n- The targetted file (for a shortcut only)",
+        "parameters": [
+          {
+            "name": "file_uuid",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Status 200"
+          },
+          "404": {
+            "description": "Status 404"
+          }
+        }
+      },
+      "delete": {
+        "summary": "Delete the file / folder",
+        "parameters": [
+          {
+            "name": "file_uuid",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "confirm_folder",
+            "in": "query",
+            "description": "If this parameter is not set, this API call will not delete non-empty folders. If it is set however, this API call will delete the folder recursively.",
+            "required": false,
+            "type": "boolean"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Status 200"
+          }
+        }
+      }
+    },
+    "/files/path/{path}": {
+      "get": {
+        "summary": "Redirects to the /file/id page of the associated file",
+        "description": "",
+        "parameters": [],
+        "responses": {
+          "302": {
+            "description": "Outputs the url of the file metadata",
+            "schema": {
+              "type": "string"
+            }
+          },
+          "404": {
+            "description": "Status 404"
+          }
+        }
+      },
+      "post": {
+        "summary": "Creates a new file",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Status 200"
+          }
+        }
+      }
+    },
+    "/shares": {
+      "get": {
+        "summary": "List the active share links of the user",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Active shares",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/Share"
+              }
+            }
+          },
+          "401": {
+            "description": "User logged out"
+          }
+        }
+      },
+      "post": {
+        "summary": "Share a new file",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "path",
+            "in": "query",
+            "description": "The path of the file to share",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "expire",
+            "in": "query",
+            "description": "Expiration date of the shared link",
+            "required": false,
+            "type": "string",
+            "format": "date"
+          },
+          {
+            "name": "share_uri",
+            "in": "query",
+            "description": "URI to use instead of a random one. Can be any valid string.",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Share created",
+            "schema": {
+              "$ref": "#/definitions/Share"
+            }
+          },
+          "404": {
+            "description": "Path doesn't exist"
+          },
+          "409": {
+            "description": "The given URI is already in use, try another one ?"
+          }
+        }
+      },
+      "put": {
+        "summary": "NOT ALLOWED",
+        "parameters": [],
+        "responses": {
+          "405": {
+            "description": "Status 405"
+          }
+        }
+      },
+      "delete": {
+        "summary": "NOT ALLOWED",
+        "parameters": [],
+        "responses": {
+          "405": {
+            "description": "Status 405"
+          }
+        }
+      }
+    },
+    "/shares/download/{shareid}": {
+      "get": {
+        "summary": "Downloads the shared file",
+        "parameters": [
+          {
+            "name": "shareid",
+            "in": "path",
+            "description": "",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Status 200"
+          }
+        }
+      }
+    },
+    "/shares/id/{shareid}": {
+      "get": {
+        "summary": "Get info about the given share",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "The share exists",
+            "schema": {
+              "$ref": "#/definitions/Share"
+            }
+          },
+          "404": {
+            "description": "The share doesn't exist"
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "FileMetadata": {
+      "type": "object",
+      "required": [
+        "creation_date",
+        "file_uuid",
+        "path"
+      ],
+      "properties": {
+        "creation_date": {
+          "type": "string",
+          "format": "date"
+        },
+        "file_uuid": {
+          "type": "string",
+          "description": "10 characters extended alphanumeric ID, meaning [0-9a-zA-Z_-]"
+        },
+        "group": {
+          "type": "string",
+          "description": "To which group does this file belong to"
+        },
+        "inner_files": {
+          "type": "array",
+          "description": "Only for folders. Lists the file contained in this folder",
+          "items": {
+            "$ref": "#/definitions/FileMetadata"
+          }
+        },
+        "last_accessed": {
+          "type": "string",
+          "format": "date",
+          "description": "Only valid for a file."
+        },
+        "last_author": {
+          "type": "string",
+          "description": "Who modified this document the last time. Only valid for a file."
+        },
+        "last_modified": {
+          "type": "string",
+          "format": "date",
+          "description": "Only valid for a file."
+        },
+        "owner": {
+          "type": "string",
+          "description": "if the owner isn't you, specifies the owner"
+        },
+        "path": {
+          "type": "string",
+          "description": "Path of the given file or folder"
+        },
+        "shortcut": {
+          "type": "string",
+          "description": "file_uuid of the file being targetted by this shortcut"
+        },
+        "type": {
+          "type": "string",
+          "description": "\"file\", \"folder\" or \"shortcut\""
+        }
+      }
+    },
+    "Share": {
+      "type": "object",
+      "required": [
+        "filename",
+        "share_id"
+      ],
+      "properties": {
+        "allowed_users": {
+          "type": "array",
+          "description": "Name of the users allowed to download this resource",
+          "items": {
+            "type": "string"
+          }
+        },
+        "filename": {
+          "type": "string",
+          "description": "Name of the file shared"
+        },
+        "number_of_downloads": {
+          "type": "string",
+          "description": "How many times this file has been downloaded yet"
+        },
+        "share_id": {
+          "type": "string",
+          "description": "Internal ID of the share link."
+        }
+      }
+    }
+  }
+}
